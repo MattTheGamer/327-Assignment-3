@@ -15,6 +15,7 @@ using namespace std;
 
 std::vector<book> books;
 std::vector<patron> patrons;
+int patron_id = 0;
 
 /*
  * clear books and patrons containers
@@ -79,7 +80,24 @@ int checkin(int bookid){
  *    the patron_id of the person added
  */
 int enroll(std::string &name){
-	return 0;
+	loadBooks(books, BOOKFILE.c_str());
+	loadPatrons(patrons, PATRONFILE.c_str());
+
+	patron temp;
+	int their_id = patron_id;
+	patron_id++;
+
+	temp.patron_id = their_id;
+
+
+	temp.name = name;
+
+	temp.number_books_checked_out = 0;
+
+
+	savePatrons(patrons, PATRONFILE.c_str());
+
+	return their_id;
 }
 
 /*
@@ -88,7 +106,7 @@ int enroll(std::string &name){
  * 
  */
 int numbBooks(){
-	return 0;
+	return books.size();
 }
 
 /*
@@ -96,7 +114,7 @@ int numbBooks(){
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons(){
-	return 0;
+	return patrons.size();
 }
 
 /*the number of books patron has checked out

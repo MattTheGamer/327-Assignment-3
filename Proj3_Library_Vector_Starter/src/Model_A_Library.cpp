@@ -146,14 +146,18 @@ void testfileIO(){
 /*
  * verify numbBooks and numbPatrons
  */
-void testnumbBooksAndnumpPatrons(){
-	//TODO 
+void testnumbBooksAndnumpPatrons(){//
+
+	//TODO
 }
 /*
  * verify enrollment 
  */
 void testenroll(){	
-	//TODO
+
+	string names[3] = {"Matt", "Sam", "Bryan"};
+
+	EXPECT_EQ(0, enroll(names[0]), "11", THREE_POINTS);
 }
 
 /*
