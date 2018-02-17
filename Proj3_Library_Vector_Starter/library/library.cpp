@@ -15,13 +15,15 @@ using namespace std;
 
 std::vector<book> books;
 std::vector<patron> patrons;
+std::vector<book>::iterator bookIterator;
+std::vector<patron>::iterator patronIterator;
 int patron_id = 0;
 
 /*
  * clear books and patrons containers
  * then reload them from disk 
  */
-void reloadAllData(){
+void reloadAllData() {
 
 	books.clear();
 	patrons.clear();
@@ -50,8 +52,40 @@ void reloadAllData(){
  * 		   BOOK_NOT_IN_COLLECTION
  *         TOO_MANY_OUT patron has the max number of books allowed checked out
  */
-int checkout(int bookid, int patronid){
-	return SUCCESS;
+int checkout(int bookid, int patronid) {
+	loadBooks(books, BOOKFILE.c_str());
+	loadPatrons(patrons, PATRONFILE.c_str());
+	patron temp;
+
+	for (bookIterator = books.begin(); bookIterator != books.end();
+			bookIterator++) {
+		if ((*bookIterator).book_id == bookid) {
+			break;
+		} else {
+			return BOOK_NOT_IN_COLLECTION;
+		}
+	}
+
+	for (patronIterator = patrons.begin(); patronIterator != patrons.end();
+			patronIterator++) {
+		if ((*patronIterator).patron_id == patronid) {
+			temp = (*patronIterator);
+			break;
+		} else {
+			return PATRON_NOT_ENROLLED;
+		}
+	}
+
+	if (temp.number_books_checked_out == MAX_BOOKS_ALLOWED_OUT) {
+		return TOO_MANY_OUT;
+	} else {
+		(*bookIterator).loaned_to_patron_id = patronid;
+		(*bookIterator).state = OUT;
+
+		saveBooks(books, BOOKFILE.c_str());
+		savePatrons(patrons, PATRONFILE.c_str());
+		return SUCCESS;
+	}
 }
 
 /* check a book back in 
@@ -66,7 +100,24 @@ int checkout(int bookid, int patronid){
  * returns SUCCESS checkout worked
  * 		   BOOK_NOT_IN_COLLECTION
  */
-int checkin(int bookid){
+int checkin(int bookid) {
+	loadBooks(books, BOOKFILE.c_str());
+	loadPatrons(patrons, PATRONFILE.c_str());
+	int patronid;
+
+	for (bookIterator = books.begin(); bookIterator != books.end();
+			bookIterator++) {
+		if ((*bookIterator).book_id == bookid) {
+			patronid = (*bookIterator).loaned_to_patron_id;
+			(*bookIterator).loaned_to_patron_id = NO_ONE;
+			(*bookIterator).state = IN;
+			break;
+		} else {
+			return BOOK_NOT_IN_COLLECTION;
+		}
+	}
+
+	patrons[patronid].number_books_checked_out = patrons[patronid].number_books_checked_out--;
 	return SUCCESS;
 }
 
@@ -79,7 +130,7 @@ int checkin(int bookid){
  * return 
  *    the patron_id of the person added
  */
-int enroll(std::string &name){
+int enroll(std::string &name) {
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 
@@ -89,14 +140,13 @@ int enroll(std::string &name){
 
 	temp.patron_id = their_id;
 
-
 	temp.name = name;
 
 	temp.number_books_checked_out = 0;
 
+	patrons.push_back(temp);
 
 	savePatrons(patrons, PATRONFILE.c_str());
-
 	return their_id;
 }
 
@@ -105,7 +155,7 @@ int enroll(std::string &name){
  * (ie. if 3 books returns 3)
  * 
  */
-int numbBooks(){
+int numbBooks() {
 	return books.size();
 }
 
@@ -113,7 +163,7 @@ int numbBooks(){
  * the number of patrons in the patrons container
  * (ie. if 3 patrons returns 3)
  */
-int numbPatrons(){
+int numbPatrons() {
 	return patrons.size();
 }
 
@@ -122,8 +172,16 @@ int numbPatrons(){
  *returns a positive number indicating how many books are checked out 
  *        or PATRON_NOT_ENROLLED         
  */
-int howmanybooksdoesPatronHaveCheckedOut(int patronid){
-	return 0;
+int howmanybooksdoesPatronHaveCheckedOut(int patronid) {
+
+	for (patronIterator = patrons.begin(); patronIterator != patrons.end();
+			patronIterator++) {
+		if ((*patronIterator).patron_id == patronid) {
+			return (*patronIterator).number_books_checked_out;
+		}
+	}
+
+	return PATRON_NOT_ENROLLED;
 }
 
 /* search through patrons container to see if patronid is there
@@ -132,7 +190,18 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid){
  * returns SUCCESS found it and name in name
  *         PATRON_NOT_ENROLLED no patron with this patronid
  */
-int whatIsPatronName(std::string &name,int patronid){
-	return SUCCESS;
+int whatIsPatronName(std::string &name, int patronid) {
+	for (patronIterator = patrons.begin(); patronIterator != patrons.end();
+				patronIterator++) {
+			if ((*patronIterator).name == name) {
+				return (*patronIterator).patron_id;
+			}
+			else
+			{
+				return PATRON_NOT_ENROLLED;
+			}
+		}
+
+		return SUCCESS;
 }
 

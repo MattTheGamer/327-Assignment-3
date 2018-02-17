@@ -158,13 +158,19 @@ void testenroll(){
 	string names[3] = {"Matt", "Sam", "Bryan"};
 
 	EXPECT_EQ(0, enroll(names[0]), "11", THREE_POINTS);
+	enroll(names[1]);
+	EXPECT_EQ(2, enroll(names[2]), "12", THREE_POINTS);
 }
 
 /*
  * verify checkin and checkout
  */
 void testcheckoutandin(){
-	//TODO
+
+	EXPECT_EQ(SUCCESS, checkout(0,0), "13", FIVE_POINTS);
+	EXPECT_EQ(PATRON_NOT_ENROLLED, checkout(0, 14), "14", FIVE_POINTS);
+
+	EXPECT_EQ(SUCCESS, checkin(0), "15", FIVE_POINTS);
 }
 
 int main(){	
