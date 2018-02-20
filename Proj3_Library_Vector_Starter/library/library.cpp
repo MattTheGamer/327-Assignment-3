@@ -118,6 +118,10 @@ int checkin(int bookid) {
 	}
 
 	patrons[patronid].number_books_checked_out = patrons[patronid].number_books_checked_out--;
+
+	saveBooks(books, BOOKFILE.c_str());
+	savePatrons(patrons, PATRONFILE.c_str());
+
 	return SUCCESS;
 }
 
