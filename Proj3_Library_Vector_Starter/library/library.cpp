@@ -82,6 +82,14 @@ int checkout(int bookid, int patronid) {
 		(*bookIterator).loaned_to_patron_id = patronid;
 		(*bookIterator).state = OUT;
 
+		for(int i = 0; i < patrons.size(); i++)
+		{
+			if(patrons[i].patron_id == patronid)
+			{
+				patrons[i].number_books_checked_out += 1;
+			}
+		}
+
 		saveBooks(books, BOOKFILE.c_str());
 		savePatrons(patrons, PATRONFILE.c_str());
 		return SUCCESS;

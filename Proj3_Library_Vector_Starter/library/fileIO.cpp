@@ -17,6 +17,7 @@ int loadBooks(std::vector<book> &books, const char* filename) {
 	book book;
 
 	inFile.open(filename);
+	inFile.clear();
 
 	if (!inFile.is_open()) {
 		return COULD_NOT_OPEN_FILE;
@@ -114,6 +115,7 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename) {
 	patron patron;
 
 	inFile.open(filename);
+	inFile.clear();
 
 	if (!inFile.is_open()) {
 		return COULD_NOT_OPEN_FILE;
