@@ -28,36 +28,38 @@ int loadBooks(std::vector<book> &books, const char* filename) {
 
 			while (!inFile.eof()) {
 				getline(inFile, line);
-				ss.str(line);
+				if (!line.empty()) {
+					ss.str(line);
 
-				getline(ss, token, CHAR_TO_SEARCH_FOR);
-				book.book_id = atoi(token.c_str());
+					getline(ss, token, CHAR_TO_SEARCH_FOR);
+					book.book_id = atoi(token.c_str());
 
-				getline(ss, book.title, CHAR_TO_SEARCH_FOR);
+					getline(ss, book.title, CHAR_TO_SEARCH_FOR);
 
-				getline(ss, book.author, CHAR_TO_SEARCH_FOR);
+					getline(ss, book.author, CHAR_TO_SEARCH_FOR);
 
-				getline(ss, token, CHAR_TO_SEARCH_FOR);
-				int temp = atoi(token.c_str());
+					getline(ss, token, CHAR_TO_SEARCH_FOR);
+					int temp = atoi(token.c_str());
 
-				switch (temp) {
+					switch (temp) {
 
-				case 0:
-					book.state = UNKNOWN;
-					break;
-				case 1:
-					book.state = IN;
-					break;
-				case 2:
-					book.state = OUT;
-					break;
+					case 0:
+						book.state = UNKNOWN;
+						break;
+					case 1:
+						book.state = IN;
+						break;
+					case 2:
+						book.state = OUT;
+						break;
+					}
+					getline(ss, token, CHAR_TO_SEARCH_FOR);
+					book.loaned_to_patron_id = atoi(token.c_str());
+
+					books.push_back(book);
+
+					ss.clear();
 				}
-				getline(ss, token, CHAR_TO_SEARCH_FOR);
-				book.loaned_to_patron_id = atoi(token.c_str());
-
-				books.push_back(book);
-
-				ss.clear();
 			}
 			inFile.close();
 			return SUCCESS;
@@ -85,7 +87,7 @@ int saveBooks(std::vector<book> &books, const char* filename) {
 			//TODO sort array by ID number
 			string data;
 
-			for (unsigned int i = 0; i < books.size() - 1; i++) {
+			for (unsigned int i = 0; i < books.size(); i++) {
 
 				data = std::to_string(books[i].book_id) + "," + books[i].title
 						+ "," + books[i].author + ","
@@ -126,19 +128,21 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename) {
 
 			while (!inFile.eof()) {
 				getline(inFile, line);
-				ss.str(line);
+				if (!line.empty()) {
+					ss.str(line);
 
-				getline(ss, token, CHAR_TO_SEARCH_FOR);
-				patron.patron_id = atoi(token.c_str());
+					getline(ss, token, CHAR_TO_SEARCH_FOR);
+					patron.patron_id = atoi(token.c_str());
 
-				getline(ss, patron.name, CHAR_TO_SEARCH_FOR);
+					getline(ss, patron.name, CHAR_TO_SEARCH_FOR);
 
-				getline(ss, token, CHAR_TO_SEARCH_FOR);
-				patron.number_books_checked_out = atoi(token.c_str());
+					getline(ss, token, CHAR_TO_SEARCH_FOR);
+					patron.number_books_checked_out = atoi(token.c_str());
 
-				patrons.push_back(patron);
+					patrons.push_back(patron);
 
-				ss.clear();
+					ss.clear();
+				}
 			}
 			inFile.close();
 			return SUCCESS;
@@ -166,7 +170,7 @@ int savePatrons(std::vector<patron> &patrons, const char* filename) {
 			//TODO sort array by ID number
 			string data;
 
-			for (unsigned int i = 0; i < patrons.size() - 1; i++) {
+			for (unsigned int i = 0; i < patrons.size(); i++) {
 
 				data = std::to_string(patrons[i].patron_id) + ","
 						+ patrons[i].name + ","

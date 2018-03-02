@@ -53,27 +53,35 @@ void reloadAllData() {
  *         TOO_MANY_OUT patron has the max number of books allowed checked out
  */
 int checkout(int bookid, int patronid) {
-	loadBooks(books, BOOKFILE.c_str());
-	loadPatrons(patrons, PATRONFILE.c_str());
+	reloadAllData();
 	patron temp;
+	bool foundPatron = false;
+	bool foundBook = false;
 
 	for (bookIterator = books.begin(); bookIterator != books.end();
 			bookIterator++) {
 		if ((*bookIterator).book_id == bookid) {
+			foundBook = true;
 			break;
-		} else {
-			return BOOK_NOT_IN_COLLECTION;
 		}
+	}
+
+	if (!foundBook) {
+		return BOOK_NOT_IN_COLLECTION;
 	}
 
 	for (patronIterator = patrons.begin(); patronIterator != patrons.end();
 			patronIterator++) {
 		if ((*patronIterator).patron_id == patronid) {
-			temp = (*patronIterator);
+			foundPatron = true;
 			break;
-		} else {
-			return PATRON_NOT_ENROLLED;
 		}
+	}
+
+	if (foundPatron) {
+		temp = (*patronIterator);
+	} else {
+		return PATRON_NOT_ENROLLED;
 	}
 
 	if (temp.number_books_checked_out == MAX_BOOKS_ALLOWED_OUT) {
@@ -82,11 +90,10 @@ int checkout(int bookid, int patronid) {
 		(*bookIterator).loaned_to_patron_id = patronid;
 		(*bookIterator).state = OUT;
 
-		for(int i = 0; i < patrons.size(); i++)
-		{
-			if(patrons[i].patron_id == patronid)
-			{
-				patrons[i].number_books_checked_out += 1;
+		for (patronIterator = patrons.begin(); patronIterator != patrons.end();
+				patronIterator++) {
+			if ((*patronIterator).patron_id == patronid) {
+				(*patronIterator).number_books_checked_out += 1;
 			}
 		}
 
@@ -109,23 +116,28 @@ int checkout(int bookid, int patronid) {
  * 		   BOOK_NOT_IN_COLLECTION
  */
 int checkin(int bookid) {
-	loadBooks(books, BOOKFILE.c_str());
-	loadPatrons(patrons, PATRONFILE.c_str());
+	reloadAllData();
 	int patronid;
+	bool bookFound = false;
 
 	for (bookIterator = books.begin(); bookIterator != books.end();
 			bookIterator++) {
 		if ((*bookIterator).book_id == bookid) {
-			patronid = (*bookIterator).loaned_to_patron_id;
-			(*bookIterator).loaned_to_patron_id = NO_ONE;
-			(*bookIterator).state = IN;
+			bookFound = true;
 			break;
-		} else {
-			return BOOK_NOT_IN_COLLECTION;
 		}
 	}
 
-	patrons[patronid].number_books_checked_out = patrons[patronid].number_books_checked_out--;
+	if (bookFound) {
+		patronid = (*bookIterator).loaned_to_patron_id;
+		(*bookIterator).loaned_to_patron_id = NO_ONE;
+		(*bookIterator).state = IN;
+	} else {
+		return BOOK_NOT_IN_COLLECTION;
+	}
+
+	patrons[patronid].number_books_checked_out =
+			--patrons[patronid].number_books_checked_out;
 
 	saveBooks(books, BOOKFILE.c_str());
 	savePatrons(patrons, PATRONFILE.c_str());
@@ -143,8 +155,7 @@ int checkin(int bookid) {
  *    the patron_id of the person added
  */
 int enroll(std::string &name) {
-	loadBooks(books, BOOKFILE.c_str());
-	loadPatrons(patrons, PATRONFILE.c_str());
+	reloadAllData();
 
 	patron temp;
 	int their_id = patron_id;
@@ -168,6 +179,11 @@ int enroll(std::string &name) {
  * 
  */
 int numbBooks() {
+	//So when testing these without the reloadAllData(), the tests fail. We shoudln't need this here
+	//but since the testFile runs the numbBooks/numbPatrons first, they aren't getting data from anywhere when the test starts
+	//Unless I'm wrong (and let's be real I probably am), we won't need this ideally, in an actual use case of a program like this
+	//but for these tests, we will
+	reloadAllData();
 	return books.size();
 }
 
@@ -176,6 +192,7 @@ int numbBooks() {
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons() {
+	reloadAllData();
 	return patrons.size();
 }
 
@@ -203,17 +220,18 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid) {
  *         PATRON_NOT_ENROLLED no patron with this patronid
  */
 int whatIsPatronName(std::string &name, int patronid) {
+	bool found = false;
 	for (patronIterator = patrons.begin(); patronIterator != patrons.end();
-				patronIterator++) {
-			if ((*patronIterator).name == name) {
-				return (*patronIterator).patron_id;
-			}
-			else
-			{
-				return PATRON_NOT_ENROLLED;
-			}
+			patronIterator++) {
+		if ((*patronIterator).name == name) {
+			found = true;
 		}
 
+	}
+	if (found) {
 		return SUCCESS;
+	} else {
+		return PATRON_NOT_ENROLLED;
+	}
 }
 
